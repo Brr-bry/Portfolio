@@ -15,7 +15,7 @@ export function Skills() {
     return (
         <section
             id="skills"
-            className="min-h-screen bg-bg-dark text-text flex flex-col justify-center"
+            className="min-h-screen text-text flex flex-col justify-center"
         >
             <div className="w-[90%] max-w-6xl mx-auto">
 
@@ -31,7 +31,7 @@ export function Skills() {
                                 py-2
                     
                                 aspect-square
-                                bg-bg
+                                bg-bg-light
                                 border
                                 border-x-highlight
                                 border-b-highlight
@@ -44,7 +44,7 @@ export function Skills() {
                                 transition-all
                                 duration-300
                                 hover:-translate-y-2
-                                hover:bg-bg-light
+                                hover:bg-bg
                             "
                         >
                             <i className={`${skill.icon} text-5xl sm:text-6xl`}></i>

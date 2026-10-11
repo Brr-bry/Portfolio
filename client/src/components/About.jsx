@@ -37,7 +37,6 @@ export function About() {
                 id="about"
             ref={sectionRef}
             className={`
-                bg-bg-dark
                 transition-all
                 duration-700
                 ${
@@ -74,7 +73,7 @@ export function About() {
                         p-6
                         sm:p-8
                         lg:p-10
-                        bg-bg
+                        bg-bg-light
                         border
                         border-b-highlight
                         border-x-highlight
