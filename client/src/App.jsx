@@ -37,7 +37,7 @@ function App() {
                 className={`
                     min-h-screen
                     transition-opacity
-                    duration-700
+                    duration-1000
                     ${isLoaded ? "opacity-100" : "opacity-0"}
                     bg-bg-dark
                     text-text

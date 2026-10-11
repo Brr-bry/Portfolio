@@ -41,7 +41,7 @@ export function Works() {
     return (
         <section
             id="works"
-            className=" scrollbar-custom min-h-screen bg-bg-dark text-text flex flex-col justify-center"
+            className=" scrollbar-custom min-h-screen text-text flex flex-col justify-center"
         >
             <div className="w-[90%] max-w-6xl mx-auto">
 
@@ -51,7 +51,7 @@ export function Works() {
 
                 <div
                     className="
-                        bg-bg
+                        bg-bg-light
                         border
                         border-x-highlight
                         border-b-highlight

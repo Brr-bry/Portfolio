@@ -13,7 +13,7 @@ export function Navbar({ isDark, setIsDark }) {
     };
 
     return (
-        <nav className="z-49 fixed top-0 left-0 w-full bg-bg-light text-text">
+        <nav className="z-49 fixed top-0 left-0 w-full bg-bg text-text">
 
             <div className="w-[90%] max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-5">
 
