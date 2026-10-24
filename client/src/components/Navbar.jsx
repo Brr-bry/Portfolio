@@ -58,6 +58,15 @@ export function Navbar({ isDark, setIsDark }) {
                                 </a>
                             </li>
 
+                            <li>
+                                <a
+                                    href="#contact"
+                                    className="transition-colors hover:text-secondary"
+                                >
+                                    Contact Me
+                                </a>
+                            </li>
+
                         </ul>
 
                         <button
@@ -114,6 +123,16 @@ export function Navbar({ isDark, setIsDark }) {
                                     className="block transition-colors hover:text-secondary"
                                 >
                                     Works
+                                </a>
+                            </li>
+
+                            <li>
+                                <a
+                                    href="#contact"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="block transition-colors hover:text-secondary"
+                                >
+                                    Contact Me
                                 </a>
                             </li>
 

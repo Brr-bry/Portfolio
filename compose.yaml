@@ -6,6 +6,8 @@ services:
       - "20261:20261"
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
     restart: unless-stopped
 
   
