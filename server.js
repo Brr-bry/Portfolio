@@ -10,7 +10,11 @@ const HOST = "0.0.0.0";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
+const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
 const CONTACT_EMAIL = "poncejohn143@gmail.com";
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 3;
+const contactRateLimits = new Map();
 
 const distPath = path.join(__dirname, "client", "dist");
 
@@ -56,17 +60,51 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 }
 
+function getClientIp(req) {
+    const forwardedFor = req.headers["x-forwarded-for"];
+    return (forwardedFor ? forwardedFor.split(",")[0].trim() : req.socket.remoteAddress) || "unknown";
+}
+
+function isRateLimited(ip) {
+    const now = Date.now();
+    const existing = contactRateLimits.get(ip);
+
+    if (!existing || now - existing.startedAt >= RATE_LIMIT_WINDOW_MS) {
+        contactRateLimits.set(ip, { startedAt: now, requests: 1 });
+        return false;
+    }
+
+    existing.requests += 1;
+    return existing.requests > RATE_LIMIT_MAX_REQUESTS;
+}
+
+function cleanRateLimits() {
+    const now = Date.now();
+    for (const [ip, entry] of contactRateLimits) {
+        if (now - entry.startedAt >= RATE_LIMIT_WINDOW_MS) contactRateLimits.delete(ip);
+    }
+}
+
 const server = http.createServer((req, res) => {
 
     let requestPath = decodeURIComponent(req.url.split("?")[0]);
 
     // Contact form email API
     if (requestPath === "/api/contact" && req.method === "POST") {
+        cleanRateLimits();
+        const clientIp = getClientIp(req);
+
+        if (isRateLimited(clientIp)) {
+            res.writeHead(429, { "Content-Type": "application/json", "Retry-After": "900" });
+            res.end(JSON.stringify({ error: "Too many messages. Please try again later." }));
+            return;
+        }
+
         readRequestBody(req)
             .then(async (body) => {
-                if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+                if (!RESEND_API_KEY || !RESEND_FROM_EMAIL || !TURNSTILE_SECRET_KEY) {
                     res.writeHead(503, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ error: "Email service is not configured." }));
+                    res.end(JSON.stringify({ error: "Contact form security is not configured." }));
                     return;
                 }
 
@@ -83,11 +121,26 @@ const server = http.createServer((req, res) => {
                 const name = typeof form.name === "string" ? form.name.trim() : "";
                 const email = typeof form.email === "string" ? form.email.trim() : "";
                 const message = typeof form.message === "string" ? form.message.trim() : "";
+                const honeypot = typeof form.website === "string" ? form.website.trim() : "";
+                const turnstileToken = typeof form.turnstileToken === "string" ? form.turnstileToken : "";
                 const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-                if (!name || name.length > 100 || !emailIsValid || message.length < 10 || message.length > 5000) {
+                if (honeypot || !turnstileToken || !name || name.length > 100 || !emailIsValid || message.length < 10 || message.length > 5000) {
                     res.writeHead(400, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ error: "Please provide a valid name, email, and message." }));
+                    return;
+                }
+
+                const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ secret: TURNSTILE_SECRET_KEY, response: turnstileToken, remoteip: clientIp })
+                });
+                const turnstileResult = await turnstileResponse.json();
+
+                if (!turnstileResponse.ok || !turnstileResult.success) {
+                    res.writeHead(403, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ error: "Security verification failed. Please try again." }));
                     return;
                 }
 
