@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+const TURNSTILE_SITE_KEY = window.__APP_CONFIG__?.turnstileSiteKey
+    || import.meta.env.VITE_TURNSTILE_SITE_KEY
+    || "";
 
 const initialForm = {
     name: "",
