@@ -2,12 +2,14 @@ services:
   portfolio:
     build:
       context: .
+      dockerfile: Dockerfile.vercel
       args:
         VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
     container_name: brr-portfolio
     ports:
       - "20261:20261"
     environment:
+      VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}

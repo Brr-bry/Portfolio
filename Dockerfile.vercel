@@ -3,13 +3,11 @@ FROM node:22-alpine AS frontend-build
 
 WORKDIR /app/client
 
-ARG VITE_TURNSTILE_SITE_KEY
-ENV VITE_TURNSTILE_SITE_KEY=$VITE_TURNSTILE_SITE_KEY
-
 COPY client/package*.json ./
 RUN npm ci
 
 COPY client/ ./
+
 RUN npm run build
 
 

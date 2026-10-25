@@ -89,6 +89,17 @@ const server = http.createServer((req, res) => {
 
     let requestPath = decodeURIComponent(req.url.split("?")[0]);
 
+    if (requestPath === "/config.js" && req.method === "GET") {
+        res.writeHead(200, {
+            "Content-Type": "application/javascript",
+            "Cache-Control": "no-store"
+        });
+        res.end(`window.__APP_CONFIG__ = ${JSON.stringify({
+            turnstileSiteKey: process.env.VITE_TURNSTILE_SITE_KEY || ""
+        })};`);
+        return;
+    }
+
     // Contact form email API
     if (requestPath === "/api/contact" && req.method === "POST") {
         cleanRateLimits();
